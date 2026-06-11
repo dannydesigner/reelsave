@@ -1,0 +1,9 @@
+{
+  "name": "api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "python scripts/run_dev.py",
+    "test": "python scripts/run_tests.py"
+  }
+}
