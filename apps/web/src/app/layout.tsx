@@ -14,7 +14,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://reelsave.me';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "ReelSave - Free TikTok & Instagram Video Downloader",
   description: "Download TikTok videos without watermark in HD, save Instagram Reels, videos, photos, and Facebook clips. Fast, free, and unlimited online downloader.",
   keywords: [
@@ -34,7 +37,23 @@ export const metadata: Metadata = {
     title: "ReelSave - Free TikTok & Instagram Video Downloader",
     description: "Download TikTok videos without watermark in HD, save Instagram Reels, videos, photos, and Facebook clips. Fast, free, and unlimited online downloader.",
     type: "website",
-  }
+    url: siteUrl,
+    siteName: "ReelSave",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
 };
 
 export default function RootLayout({
