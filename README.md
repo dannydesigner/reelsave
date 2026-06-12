@@ -1,3 +1,67 @@
+# Social Video Downloader (ReelSave)
+
+## ⚠️ IMPORTANT - Fix CORS & 500 Errors
+
+If you're seeing these errors:
+```
+❌ CORS policy: No 'Access-Control-Allow-Origin' header
+❌ 500 (Internal Server Error)
+```
+
+**SOLUTION:** Run this command to fix everything automatically:
+```bash
+fix-all-issues.bat
+```
+
+This will:
+- ✅ Install all Python dependencies (yt-dlp, fastapi, etc.)
+- ✅ Install all frontend dependencies
+- ✅ Create proper configuration files
+- ✅ Start both API and frontend servers
+
+**After running, wait 10-15 seconds then visit:** http://localhost:3000
+
+---
+
+## Quick Start - Fix CORS Error
+
+If you're seeing this error:
+```
+Access to fetch at 'http://127.0.0.1:8000/api/metadata' from origin 'http://localhost:3000' 
+has been blocked by CORS policy
+```
+
+**Root Cause:** The API server is not running or dependencies are missing.
+
+### Solution 1: Complete Fix (Recommended)
+Double-click: `fix-all-issues.bat`
+
+### Solution 2: Manual Fix
+```bash
+# Terminal 1 - Setup and Start API
+cd services/api
+setup-and-fix.bat
+npm run dev
+
+# Terminal 2 - Start Frontend
+cd apps/web
+npm run dev
+```
+
+### Verify it's working:
+- API Health: http://127.0.0.1:8000/health (should show `{"status":"ok"}`)
+- API Docs: http://127.0.0.1:8000/docs  
+- Frontend: http://localhost:3000
+
+### Need Help?
+📖 **Complete Guide:** Read `SOLUTION-SUMMARY.md`
+📖 **500 Error Fix:** Read `FIX-500-ERROR.md`
+📖 **Quick Start:** Read `START-HERE.md`
+
+Run `check-services.bat` to diagnose any issues!
+
+---
+
 # Social Video Downloader
 
 A modern two-service downloader for public social media videos.

@@ -26,7 +26,8 @@ app.add_middleware(
     allow_credentials=False,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
-    expose_headers=["Content-Disposition"],
+    expose_headers=["Content-Disposition", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"],
+    max_age=3600,  # Cache preflight requests for 1 hour
 )
 
 
@@ -158,6 +159,25 @@ def metadata(request: MetadataRequest, req: Request) -> MetadataResponse:
             duration_ms=duration_ms,
         )
         raise
+    except Exception as e:
+        duration_ms = (time.time() - start_time) * 1000
+        error_msg = f"Unexpected error: {str(e)}"
+        log_request(
+            client_ip=client_ip,
+            endpoint="/api/metadata",
+            url=str(request.url),
+            status="error",
+            reason=error_msg,
+            user_agent=req.headers.get("User-Agent", ""),
+            duration_ms=duration_ms,
+        )
+        # Log the full traceback for debugging
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Server error: {str(e)}. Check server logs for details.",
+        )
 
 
 @app.post("/api/download")
@@ -220,6 +240,25 @@ def download(request: DownloadRequest, req: Request) -> FileResponse:
             duration_ms=duration_ms,
         )
         raise
+    except Exception as e:
+        duration_ms = (time.time() - start_time) * 1000
+        error_msg = f"Unexpected error: {str(e)}"
+        log_request(
+            client_ip=client_ip,
+            endpoint="/api/download",
+            url=str(request.url),
+            status="error",
+            reason=error_msg,
+            user_agent=req.headers.get("User-Agent", ""),
+            duration_ms=duration_ms,
+        )
+        # Log the full traceback for debugging
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Server error: {str(e)}. Check server logs for details.",
+        )
 
 
 @app.on_event("startup")

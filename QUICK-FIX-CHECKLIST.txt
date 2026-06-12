@@ -1,0 +1,128 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                  CORS ERROR - QUICK FIX CHECKLIST                ║
+║                     Social Video Downloader                       ║
+╚══════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════
+ SOLUTION: Start the API Server!
+═══════════════════════════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────────┐
+│ OPTION 1: One-Click Start (Easiest!)                            │
+└──────────────────────────────────────────────────────────────────┘
+  [ ] Double-click: start-dev.bat
+  [ ] Wait 10 seconds
+  [ ] Done!
+
+┌──────────────────────────────────────────────────────────────────┐
+│ OPTION 2: Manual Start (Two Terminals)                          │
+└──────────────────────────────────────────────────────────────────┘
+  Terminal 1 - API:
+  [ ] cd services\api
+  [ ] npm run dev
+  [ ] Wait for: "Uvicorn running on http://127.0.0.1:8000"
+
+  Terminal 2 - Frontend:
+  [ ] cd apps\web
+  [ ] npm run dev
+  [ ] Wait for: "Ready on http://localhost:3000"
+
+═══════════════════════════════════════════════════════════════════
+ VERIFICATION STEPS
+═══════════════════════════════════════════════════════════════════
+
+[ ] 1. Open: http://127.0.0.1:8000/health
+       Should see: {"status":"ok", ...}
+
+[ ] 2. Open: http://127.0.0.1:8000/docs
+       Should see: Interactive API documentation
+
+[ ] 3. Open: http://localhost:3000
+       Should see: ReelSave homepage
+
+[ ] 4. Test Download:
+       [ ] Paste a TikTok/Instagram URL
+       [ ] Click "Analyze video"
+       [ ] Click "Download video"
+       [ ] Check browser console (F12) - NO CORS ERRORS!
+
+═══════════════════════════════════════════════════════════════════
+ TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════
+
+Problem: API won't start - Missing dependencies
+Fix:
+  [ ] cd services\api
+  [ ] python -m venv .venv
+  [ ] .venv\Scripts\activate
+  [ ] pip install -r requirements.txt
+  [ ] npm run dev
+
+Problem: Port 8000 already in use
+Fix:
+  [ ] netstat -ano | findstr :8000
+  [ ] taskkill /PID <number> /F
+  [ ] Start API again
+
+Problem: Frontend won't start - Missing dependencies
+Fix:
+  [ ] cd apps\web
+  [ ] npm install
+  [ ] npm run dev
+
+Problem: Still getting CORS errors
+Check:
+  [ ] API is running (visit http://127.0.0.1:8000/health)
+  [ ] Clear browser cache (Ctrl + Shift + Delete)
+  [ ] Restart both services
+  [ ] Check for firewall blocking localhost
+
+═══════════════════════════════════════════════════════════════════
+ HELPER SCRIPTS
+═══════════════════════════════════════════════════════════════════
+
+[ ] start-dev.bat        → Start both services automatically
+[ ] check-services.bat   → Check if services are running
+[ ] START-HERE.md        → Detailed guide
+[ ] CORS-FIX-GUIDE.md    → Technical documentation
+
+═══════════════════════════════════════════════════════════════════
+ WHAT WAS FIXED
+═══════════════════════════════════════════════════════════════════
+
+✓ Created services/api/.env with proper CORS configuration
+✓ Enhanced CORS middleware in services/api/app/main.py
+✓ Added startup scripts for easy development
+✓ Created comprehensive documentation
+
+═══════════════════════════════════════════════════════════════════
+ SUCCESS INDICATORS
+═══════════════════════════════════════════════════════════════════
+
+You'll know it's working when:
+  ✓ API responds at http://127.0.0.1:8000/health
+  ✓ Frontend loads at http://localhost:3000
+  ✓ Video analysis completes without errors
+  ✓ Downloads work successfully
+  ✓ NO CORS errors in browser console (F12)
+
+═══════════════════════════════════════════════════════════════════
+ IMPORTANT URLS
+═══════════════════════════════════════════════════════════════════
+
+API Health:        http://127.0.0.1:8000/health
+API Docs:          http://127.0.0.1:8000/docs
+Frontend:          http://localhost:3000
+
+═══════════════════════════════════════════════════════════════════
+ KEY FILES
+═══════════════════════════════════════════════════════════════════
+
+API Config:        services/api/.env
+API Code:          services/api/app/main.py
+Frontend Config:   apps/web/.env.local
+Frontend Code:     apps/web/src/app/page.tsx
+
+═══════════════════════════════════════════════════════════════════
+
+Need detailed help? Open: START-HERE.md

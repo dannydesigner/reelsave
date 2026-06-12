@@ -1,0 +1,166 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║              HOW TO FIX CORS & 500 ERRORS                           ║
+║              Social Video Downloader (ReelSave)                     ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+
+  PROBLEM: Getting CORS or 500 errors when trying to download videos?
+
+
+  ┌────────────────────────────────────────────────────────────────┐
+  │                                                                │
+  │                    EASY FIX (ONE CLICK)                        │
+  │                                                                │
+  │   1. Double-click this file:  fix-all-issues.bat              │
+  │                                                                │
+  │   2. Wait for "Setup Complete!" message                        │
+  │                                                                │
+  │   3. Wait 15 seconds for services to start                     │
+  │                                                                │
+  │   4. Open: http://localhost:3000                               │
+  │                                                                │
+  │   5. Try downloading a video - it should work now! ✓           │
+  │                                                                │
+  └────────────────────────────────────────────────────────────────┘
+
+
+  ┌────────────────────────────────────────────────────────────────┐
+  │                                                                │
+  │                    MANUAL FIX (3 STEPS)                        │
+  │                                                                │
+  │   STEP 1: Open terminal, run:                                  │
+  │           cd services\api                                      │
+  │           setup-and-fix.bat                                    │
+  │                                                                │
+  │   STEP 2: After setup completes, run:                          │
+  │           cd ..\..                                             │
+  │           start-dev.bat                                        │
+  │                                                                │
+  │   STEP 3: Open: http://localhost:3000                          │
+  │                                                                │
+  └────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════
+
+
+  WHAT WAS FIXED:
+
+
+  ✓ Created services/api/.env with proper CORS configuration
+  ✓ Enhanced error handling in services/api/app/main.py
+  ✓ Created setup-and-fix.bat to install dependencies
+  ✓ Created fix-all-issues.bat for complete setup
+  ✓ Created comprehensive documentation
+
+
+═══════════════════════════════════════════════════════════════════════
+
+
+  VERIFY IT WORKS:
+
+
+  Check 1: API Health
+  ├─ Open: http://127.0.0.1:8000/health
+  └─ Should see: {"status":"ok", "yt_dlp_available":true, ...}
+
+  Check 2: API Docs
+  ├─ Open: http://127.0.0.1:8000/docs
+  └─ Should see: Interactive API documentation
+
+  Check 3: Frontend
+  ├─ Open: http://localhost:3000
+  ├─ Paste a video URL
+  ├─ Click "Analyze video"
+  ├─ Click "Download video"
+  └─ Should work without errors! ✓
+
+
+═══════════════════════════════════════════════════════════════════════
+
+
+  COMMON ISSUES:
+
+
+  Issue: "Python is not recognized"
+  Fix:   Install Python from python.org and add to PATH
+
+
+  Issue: "ModuleNotFoundError: No module named 'yt_dlp'"
+  Fix:   Run: cd services\api && setup-and-fix.bat
+
+
+  Issue: Port 8000 already in use
+  Fix:   Run: netstat -ano | findstr :8000
+         Then: taskkill /PID <number> /F
+
+
+  Issue: Still getting errors
+  Fix:   Read FIX-500-ERROR.md for detailed troubleshooting
+
+
+═══════════════════════════════════════════════════════════════════════
+
+
+  HELPER SCRIPTS:
+
+
+  fix-all-issues.bat     → Complete setup (recommended)
+  start-dev.bat          → Start both services
+  check-services.bat     → Check if services are running
+  open-urls.bat          → Open all important URLs
+
+
+═══════════════════════════════════════════════════════════════════════
+
+
+  DOCUMENTATION:
+
+
+  SOLUTION-SUMMARY.md          → Complete solution overview
+  FIX-500-ERROR.md             → Fix 500 Internal Server Error
+  START-HERE.md                → Beginner-friendly guide
+  CORS-FIX-GUIDE.md            → CORS technical details
+  QUICK-FIX-CHECKLIST.txt      → Printable checklist
+
+
+═══════════════════════════════════════════════════════════════════════
+
+
+  REQUIREMENTS:
+
+
+  Must Have:
+  ✓ Python 3.8 or higher
+  ✓ Node.js and npm
+  ✓ Internet connection
+
+  Recommended:
+  ⭐ ffmpeg (for better video quality)
+
+
+═══════════════════════════════════════════════════════════════════════
+
+
+  QUICK DIAGNOSTIC:
+
+
+  Run this to check everything:  check-services.bat
+
+
+═══════════════════════════════════════════════════════════════════════
+
+
+                          NEED HELP?
+
+  1. Run: fix-all-issues.bat
+  2. Read: SOLUTION-SUMMARY.md
+  3. Read: FIX-500-ERROR.md
+  4. Check API terminal for error messages
+
+
+═══════════════════════════════════════════════════════════════════════
+
+Last Updated: June 12, 2026

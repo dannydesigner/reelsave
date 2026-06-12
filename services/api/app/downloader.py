@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import glob
+import math
 import os
 import shutil
 import tempfile
@@ -38,28 +39,68 @@ def _base_options() -> dict[str, Any]:
     }
 
 
+def _non_negative_finite_float(value: Any) -> float | None:
+    if value is None or isinstance(value, bool):
+        return None
+
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+
+    if not math.isfinite(number) or number < 0:
+        return None
+    return number
+
+
+def _rounded_int(value: Any) -> int | None:
+    number = _non_negative_finite_float(value)
+    if number is None:
+        return None
+    return int(math.floor(number + 0.5))
+
+
+def _whole_seconds(value: Any) -> int | None:
+    return _rounded_int(value)
+
+
+def _byte_count(value: Any) -> int | None:
+    bytes_value = _non_negative_finite_float(value)
+    if bytes_value is None:
+        return None
+    return int(math.ceil(bytes_value))
+
+
+def _format_filesize(format_info: dict[str, Any]) -> int | None:
+    for key in ("filesize", "filesize_approx"):
+        filesize = _byte_count(format_info.get(key))
+        if filesize is not None:
+            return filesize
+    return None
+
+
 def _format_label(format_info: dict[str, Any]) -> str:
     resolution = format_info.get("resolution")
-    height = format_info.get("height")
+    height = _rounded_int(format_info.get("height"))
     ext = format_info.get("ext")
-    fps = format_info.get("fps")
-    filesize = format_info.get("filesize") or format_info.get("filesize_approx")
+    fps = _non_negative_finite_float(format_info.get("fps"))
+    filesize = _format_filesize(format_info)
     parts: list[str] = []
 
     if resolution and resolution != "audio only":
         parts.append(str(resolution))
-    elif height:
+    elif height is not None:
         parts.append(f"{height}p")
     elif format_info.get("vcodec") == "none":
         parts.append("Audio")
     else:
         parts.append("Auto")
 
-    if fps:
-        parts.append(f"{fps}fps")
+    if fps is not None:
+        parts.append(f"{fps:g}fps")
     if ext:
         parts.append(str(ext).upper())
-    if filesize:
+    if filesize is not None:
         parts.append(f"{filesize / (1024 * 1024):.1f} MB")
 
     return " · ".join(parts)
@@ -68,8 +109,15 @@ def _format_label(format_info: dict[str, Any]) -> str:
 def _extract_formats(info: dict[str, Any]) -> list[FormatInfo]:
     seen: set[str] = set()
     formats: list[FormatInfo] = []
+    raw_formats = info.get("formats")
 
-    for item in info.get("formats") or []:
+    if not isinstance(raw_formats, list):
+        return formats
+
+    for item in raw_formats:
+        if not isinstance(item, dict):
+            continue
+
         format_id = item.get("format_id")
         if not format_id or format_id in seen:
             continue
@@ -77,18 +125,19 @@ def _extract_formats(info: dict[str, Any]) -> list[FormatInfo]:
             continue
         
         # Validate file size against limit
-        filesize = item.get("filesize") or item.get("filesize_approx")
-        if filesize and filesize > settings.max_download_bytes:
+        filesize = _format_filesize(item)
+        if filesize is not None and filesize > settings.max_download_bytes:
             continue  # Skip formats that exceed size limit
         
         seen.add(format_id)
+        height = _rounded_int(item.get("height"))
         formats.append(
             FormatInfo(
                 format_id=str(format_id),
                 label=_format_label(item),
                 ext=item.get("ext"),
                 resolution=item.get("resolution")
-                or (f"{item.get('height')}p" if item.get("height") else None),
+                or (f"{height}p" if height is not None else None),
                 filesize=filesize,
                 vcodec=item.get("vcodec"),
                 acodec=item.get("acodec"),
@@ -151,8 +200,9 @@ def get_metadata(url: str) -> MetadataResponse:
         raise HTTPException(status_code=422, detail="Playlists are not supported in this version.")
 
     # Check if video duration suggests a file too large
-    duration = info.get("duration")
-    if duration and duration > 1800:  # 30 minutes
+    raw_duration = _non_negative_finite_float(info.get("duration"))
+    duration = _whole_seconds(raw_duration)
+    if raw_duration is not None and raw_duration > 1800:  # 30 minutes
         warnings.append("Long videos may exceed the size limit. Consider selecting a lower quality format.")
 
     title = info.get("title") or "Untitled video"

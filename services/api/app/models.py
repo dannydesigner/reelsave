@@ -35,7 +35,7 @@ class MetadataResponse(BaseModel):
     thumbnail: str | None = None
     duration: int | None = None
     formats: list[FormatInfo]
-    warnings: list[str] = []
+    warnings: list[str] = Field(default_factory=list)
 
 
 class HealthResponse(BaseModel):
