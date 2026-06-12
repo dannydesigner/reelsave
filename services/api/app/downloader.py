@@ -75,6 +75,12 @@ def _extract_formats(info: dict[str, Any]) -> list[FormatInfo]:
             continue
         if item.get("protocol") in {"mhtml", "storyboard"}:
             continue
+        
+        # Validate file size against limit
+        filesize = item.get("filesize") or item.get("filesize_approx")
+        if filesize and filesize > settings.max_download_bytes:
+            continue  # Skip formats that exceed size limit
+        
         seen.add(format_id)
         formats.append(
             FormatInfo(
@@ -83,7 +89,7 @@ def _extract_formats(info: dict[str, Any]) -> list[FormatInfo]:
                 ext=item.get("ext"),
                 resolution=item.get("resolution")
                 or (f"{item.get('height')}p" if item.get("height") else None),
-                filesize=item.get("filesize") or item.get("filesize_approx"),
+                filesize=filesize,
                 vcodec=item.get("vcodec"),
                 acodec=item.get("acodec"),
             )
@@ -112,8 +118,12 @@ def _friendly_error(error: Exception) -> HTTPException:
         detail = "This site or URL shape is not supported by the downloader right now."
         code = status.HTTP_422_UNPROCESSABLE_ENTITY
     elif "file is larger than max-filesize" in lower or "larger than max" in lower:
-        detail = "This video is larger than the configured download limit."
+        max_mb = settings.max_download_bytes // (1024 * 1024)
+        detail = f"This video exceeds the maximum allowed size of {max_mb} MB."
         code = status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
+    elif "timed out" in lower or "timeout" in lower:
+        detail = "The download operation timed out. The video may be too large or the source is too slow."
+        code = status.HTTP_504_GATEWAY_TIMEOUT
     else:
         detail = "The video could not be fetched. The platform may have changed or blocked public extraction."
         code = status.HTTP_502_BAD_GATEWAY
@@ -140,13 +150,18 @@ def get_metadata(url: str) -> MetadataResponse:
     if info.get("_type") in {"playlist", "multi_video"}:
         raise HTTPException(status_code=422, detail="Playlists are not supported in this version.")
 
+    # Check if video duration suggests a file too large
+    duration = info.get("duration")
+    if duration and duration > 1800:  # 30 minutes
+        warnings.append("Long videos may exceed the size limit. Consider selecting a lower quality format.")
+
     title = info.get("title") or "Untitled video"
     return MetadataResponse(
         title=title,
         webpage_url=info.get("webpage_url") or url,
         platform=_platform(info),
         thumbnail=info.get("thumbnail"),
-        duration=info.get("duration"),
+        duration=duration,
         formats=_extract_formats(info),
         warnings=warnings,
     )
@@ -162,6 +177,20 @@ def _format_selector(format_id: str | None, quality: Quality) -> str:
     return "bestvideo+bestaudio/best"
 
 
+def _validate_downloaded_file(file_path: Path) -> None:
+    """Validate downloaded file size."""
+    file_size = file_path.stat().st_size
+    max_size = settings.max_download_bytes
+    
+    if file_size > max_size:
+        max_mb = max_size // (1024 * 1024)
+        actual_mb = file_size / (1024 * 1024)
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"Downloaded file ({actual_mb:.1f} MB) exceeds maximum allowed size of {max_mb} MB.",
+        )
+
+
 def download_video(url: str, format_id: str | None, quality: Quality) -> tuple[Path, str, Path]:
     settings.temp_root.mkdir(parents=True, exist_ok=True)
     work_dir = Path(tempfile.mkdtemp(prefix="socialdl-", dir=settings.temp_root))
@@ -172,6 +201,9 @@ def download_video(url: str, format_id: str | None, quality: Quality) -> tuple[P
         "outtmpl": output_template,
         "merge_output_format": "mp4",
     }
+
+    # Note: Signal-based timeout removed due to thread-safety issues with uvicorn workers.
+    # Relying on yt-dlp's built-in socket_timeout and max_filesize options instead.
 
     try:
         with YoutubeDL(options) as ydl:
@@ -189,6 +221,10 @@ def download_video(url: str, format_id: str | None, quality: Quality) -> tuple[P
         raise HTTPException(status_code=502, detail="The downloader did not produce a media file.")
 
     file_path = max(candidates, key=lambda path: path.stat().st_size)
+    
+    # Validate file size
+    _validate_downloaded_file(file_path)
+    
     filename = os.path.basename(file_path)
 
     requested = info.get("requested_downloads") if isinstance(info, dict) else None
@@ -197,5 +233,7 @@ def download_video(url: str, format_id: str | None, quality: Quality) -> tuple[P
         if requested_path.exists():
             file_path = requested_path
             filename = requested_path.name
+            # Validate again in case it's a different file
+            _validate_downloaded_file(file_path)
 
     return file_path, filename, work_dir
