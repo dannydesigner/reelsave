@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { FormEvent, useMemo, useState } from "react";
 import AppBanner from "@/components/AppBanner";
+import Link from "next/link";
 
 type Quality = "best" | "medium" | "audio";
 
@@ -206,55 +207,59 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
-      <section className="border-b border-[#ded8ca] bg-[#f6f4ef]">
-        <div className="mx-auto grid min-h-[92vh] w-full max-w-7xl gap-8 px-4 py-5 sm:px-6 lg:grid-cols-[1fr_420px] lg:px-8">
-          <div className="flex min-w-0 flex-col justify-between gap-8">
-            <header className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#161613] text-white">
-                  <FileVideo size={20} aria-hidden="true" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#776f60]">
-                    ReelSave
-                  </p>
-                  <p className="text-sm text-[#5d574c]">Public social video downloader</p>
-                </div>
-              </div>
-              <div className="hidden items-center gap-2 rounded-full border border-[#d8cfbd] bg-white px-3 py-2 text-sm text-[#5d574c] shadow-sm sm:flex">
-                <ShieldCheck size={16} aria-hidden="true" />
-                No login or cookies
-              </div>
-            </header>
+      <section className="bg-[#fcfdfd]">
+        <header className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-2.5">
+            <div className="flex text-[#4f46e5]">
+              <FileVideo size={28} strokeWidth={2.5} aria-hidden="true" />
+            </div>
+            <span className="text-[1.1rem] font-black uppercase tracking-[0.1em] text-[#161613]">
+              ReelSave
+            </span>
+          </div>
+          
+          <nav className="hidden items-center gap-8 text-sm font-bold text-[#4b5563] md:flex">
+            <a href="#how-it-works" className="border-b-2 border-[#4f46e5] pb-1 text-[#4f46e5]">How it works</a>
+            <Link href="/privacy" className="hover:text-[#111827]">Privacy</Link>
+            <a href="#apps" className="hover:text-[#111827]">Apps</a>
+          </nav>
 
-            <div className="max-w-4xl">
-              <h1 className="max-w-3xl text-4xl font-semibold leading-[1.04] text-[#161613] sm:text-6xl lg:text-7xl">
-                Download public social videos without a messy workflow.
+          <div className="hidden items-center gap-2 rounded-full border border-[#e5e7eb] bg-white px-4 py-1.5 text-xs font-semibold text-[#4b5563] shadow-sm sm:flex">
+            <ShieldCheck size={16} aria-hidden="true" />
+            No login or cookies
+          </div>
+        </header>
+
+        <div className="border-b border-[#e5e7eb] opacity-60" />
+
+        <div className="mx-auto grid w-full max-w-7xl gap-12 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_440px] lg:px-8 lg:py-20">
+          <div className="flex min-w-0 flex-col gap-10">
+            <div className="max-w-[42rem] pt-6">
+              <h1 className="text-5xl font-black tracking-tight leading-[1.05] text-[#161613] sm:text-6xl lg:text-[4.5rem]">
+                Download public social videos without a <span className="text-[#4f46e5]">messy workflow.</span>
               </h1>
-              <p className="mt-5 max-w-2xl text-base leading-7 text-[#5d574c] sm:text-lg">
+              <p className="mt-8 max-w-2xl text-lg leading-8 text-[#5d574c]">
                 Paste a video link, inspect available formats, and save the media through a
                 temporary backend job. Private, login-only, DRM, and restricted links stay blocked.
               </p>
             </div>
 
-            <AppBanner />
-
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {[
-                ["Public only", "No credential or cookie collection"],
-                ["Temporary files", "Downloads are cleaned after streaming"],
-                ["Format choice", "Pick exact formats when available"],
-                ["Honest errors", "Clear messages when platforms block access"],
+                ["Public only", "No credentials collection"],
+                ["Temporary files", "Cleaned after streaming"],
+                ["Format choice", "Pick exact formats"],
+                ["Honest errors", "Clear error messages"],
               ].map(([title, body]) => (
-                <div key={title} className="border-l-2 border-[#1f8a70] bg-white/70 px-4 py-3">
-                  <p className="font-semibold text-[#161613]">{title}</p>
-                  <p className="mt-1 text-sm leading-5 text-[#696255]">{body}</p>
+                <div key={title} className="rounded-r-2xl border-l-[3px] border-[#4f46e5] bg-[#f4f6fb] px-5 py-4">
+                  <p className="text-[13px] font-bold text-[#161613]">{title}</p>
+                  <p className="mt-1 text-xs font-medium text-[#6b7280]">{body}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <aside className="self-center rounded-lg border border-[#d8cfbd] bg-white p-4 shadow-[0_18px_70px_rgba(57,47,32,0.16)] sm:p-5">
+          <aside className="self-center rounded-3xl border border-[#f0f2f5] bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.06)] sm:p-8">
             <form onSubmit={analyze} className="space-y-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
@@ -279,25 +284,25 @@ export default function Home() {
 
               <label className="block">
                 <span className="mb-2 block text-sm font-medium text-[#3f392f]">Video URL</span>
-                <div className="flex overflow-hidden rounded-md border border-[#cfc6b4] bg-white focus-within:border-[#1f8a70] focus-within:ring-2 focus-within:ring-[#1f8a70]/20">
-                  <div className="flex w-11 items-center justify-center text-[#776f60]">
+                <div className="flex overflow-hidden rounded-xl border border-transparent bg-[#f0f2f5] focus-within:border-[#4f46e5] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#4f46e5]/10">
+                  <div className="flex w-12 items-center justify-center text-[#6b7280]">
                     <Link2 size={18} aria-hidden="true" />
                   </div>
                   <input
                     value={url}
                     onChange={(event) => setUrl(event.target.value)}
                     placeholder="https://www.tiktok.com/@user/video/..."
-                    className="min-w-0 flex-1 bg-transparent px-1 py-3 text-sm outline-none"
+                    className="min-w-0 flex-1 bg-transparent px-1 py-3.5 text-[15px] font-medium outline-none placeholder:text-[#9ca3af]"
                     inputMode="url"
                   />
                   <button
                     type="button"
                     onClick={pasteFromClipboard}
-                    className="flex h-12 w-12 items-center justify-center border-l border-[#e5ddce] text-[#5d574c] transition hover:bg-[#f5efe2]"
+                    className="flex h-[52px] w-12 items-center justify-center text-[#6b7280] transition hover:bg-[#e5e7eb]"
                     aria-label="Paste from clipboard"
                     title="Paste from clipboard"
                   >
-                    <Clipboard size={17} aria-hidden="true" />
+                    <Clipboard size={18} aria-hidden="true" />
                   </button>
                 </div>
               </label>
@@ -305,12 +310,12 @@ export default function Home() {
               <button
                 type="submit"
                 disabled={isLoadingMetadata}
-                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-[#161613] px-4 font-semibold text-white transition hover:bg-[#2d2922] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-[#161613] px-4 font-bold text-white transition hover:bg-[#2d2922] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isLoadingMetadata ? (
                   <Loader2 className="animate-spin" size={18} aria-hidden="true" />
                 ) : (
-                  <Search size={18} aria-hidden="true" />
+                  <Search size={18} strokeWidth={2.5} aria-hidden="true" />
                 )}
                 {isLoadingMetadata ? "Analyzing" : "Analyze video"}
               </button>
@@ -320,13 +325,13 @@ export default function Home() {
               {platforms.map((platform) => (
                 <div
                   key={platform.name}
-                  className={`truncate rounded-md px-3 py-2 text-center text-xs font-semibold ${platform.tone}`}
+                  className={`truncate rounded-lg px-3 py-2.5 text-center text-xs font-bold ${platform.tone}`}
                   title={platform.name}
                 >
                   {platform.name}
                 </div>
               ))}
-              <div className="rounded-md bg-[#f1eadb] px-3 py-2 text-center text-xs font-semibold text-[#4c4539]">
+              <div className="rounded-lg bg-[#eef1fc] px-3 py-2.5 text-center text-xs font-bold text-[#4f46e5]">
                 Other supported URL
               </div>
             </div>
@@ -351,12 +356,18 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#fffdfa] px-4 py-8 sm:px-6 lg:px-8">
+      <section id="apps" className="bg-[#f4f6fb] py-14 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl">
+          <AppBanner />
+        </div>
+      </section>
+
+      <section className="bg-[#fcfdfd] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
           <div className="min-w-0">
             {metadata ? (
-              <div className="grid gap-5 rounded-lg border border-[#d8cfbd] bg-white p-4 shadow-sm md:grid-cols-[260px_minmax(0,1fr)]">
-                <div className="aspect-video overflow-hidden rounded-md bg-[#ebe4d5]">
+              <div className="grid gap-5 rounded-2xl border border-[#e5e7eb] bg-white p-5 shadow-sm md:grid-cols-[260px_minmax(0,1fr)]">
+                <div className="aspect-video overflow-hidden rounded-xl bg-[#f0f2f5]">
                   {metadata.thumbnail ? (
                     <img
                       src={metadata.thumbnail}
@@ -365,27 +376,27 @@ export default function Home() {
                       referrerPolicy="no-referrer"
                     />
                   ) : (
-                    <div className="flex h-full items-center justify-center text-[#776f60]">
+                    <div className="flex h-full items-center justify-center text-[#9ca3af]">
                       <FileVideo size={38} aria-hidden="true" />
                     </div>
                   )}
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-[#e8f4ef] px-3 py-1 text-xs font-semibold text-[#17624f]">
+                    <span className="rounded-full bg-[#eef1fc] px-3 py-1 text-xs font-bold text-[#4f46e5]">
                       {metadata.platform}
                     </span>
-                    <span className="rounded-full bg-[#f1eadb] px-3 py-1 text-xs font-semibold text-[#5d574c]">
+                    <span className="rounded-full bg-[#f3f4f6] px-3 py-1 text-xs font-bold text-[#4b5563]">
                       {formatDuration(metadata.duration)}
                     </span>
                   </div>
-                  <h2 className="mt-3 break-words text-2xl font-semibold leading-tight text-[#161613]">
+                  <h2 className="mt-3 break-words text-2xl font-bold leading-tight text-[#161613]">
                     {metadata.title}
                   </h2>
-                  <p className="mt-2 break-all text-sm text-[#696255]">{metadata.webpage_url}</p>
+                  <p className="mt-2 break-all text-sm font-medium text-[#6b7280]">{metadata.webpage_url}</p>
 
                   {metadata.warnings.length > 0 && (
-                    <div className="mt-4 rounded-md border border-[#ead298] bg-[#fff8e4] p-3 text-sm text-[#765313]">
+                    <div className="mt-4 rounded-xl border border-[#fde68a] bg-[#fef3c7] p-3.5 text-sm font-medium text-[#92400e]">
                       {metadata.warnings.map((warning) => (
                         <p key={warning}>{warning}</p>
                       ))}
@@ -394,42 +405,42 @@ export default function Home() {
                 </div>
               </div>
             ) : (
-              <div className="rounded-lg border border-dashed border-[#cfc6b4] bg-white p-8 text-center">
-                <FileVideo className="mx-auto text-[#776f60]" size={42} aria-hidden="true" />
-                <h2 className="mt-4 text-xl font-semibold text-[#161613]">Waiting for a public link</h2>
-                <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#696255]">
+              <div className="rounded-2xl border-2 border-dashed border-[#e5e7eb] bg-white p-10 text-center">
+                <FileVideo className="mx-auto text-[#9ca3af]" size={42} strokeWidth={1.5} aria-hidden="true" />
+                <h2 className="mt-4 text-xl font-bold text-[#161613]">Waiting for a public link</h2>
+                <p className="mx-auto mt-2 max-w-xl text-sm font-medium leading-6 text-[#6b7280]">
                   Analyze a URL to preview its metadata and available downloadable formats.
                 </p>
               </div>
             )}
 
-            <div className="mt-6 rounded-lg border border-[#d8cfbd] bg-white p-4">
-              <h3 className="font-semibold text-[#161613]">Available formats</h3>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-6 rounded-2xl border border-[#e5e7eb] bg-white p-5 shadow-sm">
+              <h3 className="text-[15px] font-bold text-[#161613]">Available formats</h3>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {(metadata?.formats.length ? metadata.formats : []).map((format) => (
                   <button
                     key={format.format_id}
                     type="button"
                     onClick={() => setFormatId(format.format_id)}
-                    className={`min-h-24 rounded-md border p-3 text-left transition ${
+                    className={`min-h-24 rounded-xl border p-3.5 text-left transition ${
                       formatId === format.format_id
-                        ? "border-[#1f8a70] bg-[#eefaf5] ring-2 ring-[#1f8a70]/20"
-                        : "border-[#e1d8c8] hover:bg-[#f8f2e6]"
+                        ? "border-[#4f46e5] bg-[#eef1fc] ring-2 ring-[#4f46e5]/20"
+                        : "border-[#e5e7eb] hover:bg-[#f9fafb]"
                     }`}
                   >
-                    <span className="block truncate text-sm font-semibold text-[#161613]">
+                    <span className="block truncate text-sm font-bold text-[#161613]">
                       {format.label}
                     </span>
-                    <span className="mt-2 block text-xs text-[#696255]">
+                    <span className="mt-2 block text-xs font-medium text-[#6b7280]">
                       ID {format.format_id} · {formatBytes(format.filesize)}
                     </span>
-                    <span className="mt-2 block text-xs text-[#8a8172]">
+                    <span className="mt-1 block text-[11px] font-bold text-[#9ca3af]">
                       {format.vcodec === "none" ? "Audio only" : format.resolution || "Adaptive"}
                     </span>
                   </button>
                 ))}
                 {!metadata?.formats.length && (
-                  <div className="rounded-md border border-[#e1d8c8] bg-[#fbf8f1] p-4 text-sm text-[#696255] sm:col-span-2 xl:col-span-3">
+                  <div className="rounded-xl border border-[#e5e7eb] bg-[#f9fafb] p-5 text-sm font-medium text-[#6b7280] sm:col-span-2 xl:col-span-3">
                     Format choices will appear here after analysis. You can still use default quality
                     when the downloader supports the link.
                   </div>
@@ -438,14 +449,14 @@ export default function Home() {
             </div>
           </div>
 
-          <aside className="h-fit rounded-lg border border-[#d8cfbd] bg-white p-4 shadow-sm">
-            <h3 className="text-lg font-semibold text-[#161613]">Download options</h3>
-            <label className="mt-4 block">
-              <span className="mb-2 block text-sm font-medium text-[#3f392f]">Quality mode</span>
+          <aside className="h-fit rounded-2xl border border-[#e5e7eb] bg-white p-6 shadow-sm">
+            <h3 className="text-[17px] font-bold text-[#161613]">Download options</h3>
+            <label className="mt-5 block">
+              <span className="mb-2 block text-sm font-bold text-[#374151]">Quality mode</span>
               <select
                 value={quality}
                 onChange={(event) => setQuality(event.target.value as Quality)}
-                className="h-11 w-full rounded-md border border-[#cfc6b4] bg-white px-3 text-sm outline-none focus:border-[#1f8a70] focus:ring-2 focus:ring-[#1f8a70]/20"
+                className="h-12 w-full rounded-xl border border-[#e5e7eb] bg-[#f9fafb] px-3 text-[14px] font-medium text-[#111827] outline-none focus:border-[#4f46e5] focus:bg-white focus:ring-4 focus:ring-[#4f46e5]/10"
               >
                 <option value="best">Best available</option>
                 <option value="medium">Medium up to 720p</option>
@@ -453,32 +464,32 @@ export default function Home() {
               </select>
             </label>
 
-            <div className="mt-4 rounded-md bg-[#f7f1e6] p-3 text-sm text-[#5d574c]">
-              <p className="font-medium text-[#3f392f]">Selected format</p>
-              <p className="mt-1">{selectedFormat ? selectedFormat.label : "Automatic by quality mode"}</p>
+            <div className="mt-4 rounded-xl bg-[#f4f6fb] p-4 text-sm text-[#4b5563]">
+              <p className="font-bold text-[#374151]">Selected format</p>
+              <p className="mt-1 font-medium">{selectedFormat ? selectedFormat.label : "Automatic by quality mode"}</p>
             </div>
 
             <button
               type="button"
               onClick={downloadVideo}
               disabled={isDownloading}
-              className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-[#1f8a70] px-4 font-semibold text-white transition hover:bg-[#176d59] disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-6 inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-4 font-bold text-white transition hover:bg-[#4338ca] shadow-md shadow-[#4f46e5]/20 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isDownloading ? (
-                <Loader2 className="animate-spin" size={18} aria-hidden="true" />
+               <Loader2 className="animate-spin" size={18} aria-hidden="true" />
               ) : (
                 <Download size={18} aria-hidden="true" />
               )}
               {isDownloading ? "Preparing file" : "Download video"}
             </button>
 
-            <div className="mt-5 space-y-3 text-sm leading-6 text-[#696255]">
+            <div className="mt-6 space-y-4 text-[13px] font-medium leading-relaxed text-[#6b7280]">
               <p className="flex gap-2">
-                <ShieldCheck className="mt-1 shrink-0 text-[#1f8a70]" size={16} aria-hidden="true" />
+                <ShieldCheck className="mt-0.5 shrink-0 text-[#4f46e5]" size={18} aria-hidden="true" />
                 Public links only. Login-required, private, DRM, and restricted videos are rejected.
               </p>
               <p className="flex gap-2">
-                <AlertTriangle className="mt-1 shrink-0 text-[#b06a16]" size={16} aria-hidden="true" />
+                <AlertTriangle className="mt-0.5 shrink-0 text-[#d97706]" size={18} aria-hidden="true" />
                 Platform changes can temporarily break extraction until yt-dlp updates.
               </p>
             </div>
@@ -487,7 +498,7 @@ export default function Home() {
       </section>
 
       {/* Dynamic guides & SEO FAQ section */}
-      <section className="bg-[#fffdfa] border-t border-[#ded8ca] px-4 py-16 sm:px-6 lg:px-8">
+      <section id="how-it-works" className="bg-[#fcfdfd] border-t border-[#e5e7eb] px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl space-y-16">
           {/* JSON-LD Schema */}
           <script
@@ -608,10 +619,10 @@ export default function Home() {
 
           {/* Section 1: SEO Rich Content Introduction */}
           <div className="text-center space-y-4">
-            <h2 className="text-3xl font-bold text-[#161613] sm:text-4xl">
+            <h2 className="text-3xl font-black text-[#161613] sm:text-4xl">
               Free TikTok & Instagram Video Downloader
             </h2>
-            <p className="text-base text-[#5d574c] leading-7 max-w-2xl mx-auto">
+            <p className="text-base text-[#4b5563] font-medium leading-relaxed max-w-2xl mx-auto">
               ReelSave is a free, fast, and secure social media video download tool. 
               Save high-definition videos, reels, photos, and audios from popular platforms 
               like TikTok, Instagram, and Facebook in standard MP4 formats. Our service removes 
@@ -621,25 +632,25 @@ export default function Home() {
           </div>
 
           {/* Section 2: Interactive Tabs for Download Guides */}
-          <div className="border border-[#d8cfbd] bg-white rounded-xl p-6 shadow-sm">
-            <div className="text-center mb-6">
-              <h3 className="text-xl font-bold text-[#161613]">
+          <div className="border border-[#e5e7eb] bg-white rounded-2xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:p-8">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold text-[#161613]">
                 Step-by-Step Downloader Guides
               </h3>
-              <p className="text-sm text-[#696255] mt-1">
+              <p className="text-sm font-medium text-[#6b7280] mt-2">
                 Select a platform below to see how to quickly extract and save videos.
               </p>
             </div>
 
             {/* Tab selector buttons */}
-            <div className="flex border-b border-[#e5ddce] mb-6">
+            <div className="flex border-b border-[#e5e7eb] mb-8">
               <button
                 type="button"
                 onClick={() => setActiveTab("tiktok")}
-                className={`flex-1 pb-3 text-center text-sm font-semibold border-b-2 transition ${
+                className={`flex-1 pb-4 text-center text-[15px] font-bold border-b-[3px] transition ${
                   activeTab === "tiktok"
-                    ? "border-[#1f8a70] text-[#1f8a70] focus:outline-none"
-                    : "border-transparent text-[#696255] hover:text-[#161613] focus:outline-none"
+                    ? "border-[#4f46e5] text-[#4f46e5] focus:outline-none"
+                    : "border-transparent text-[#9ca3af] hover:text-[#111827] focus:outline-none"
                 }`}
               >
                 TikTok Downloader Guide
@@ -647,10 +658,10 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setActiveTab("instagram")}
-                className={`flex-1 pb-3 text-center text-sm font-semibold border-b-2 transition ${
+                className={`flex-1 pb-4 text-center text-[15px] font-bold border-b-[3px] transition ${
                   activeTab === "instagram"
-                    ? "border-[#1f8a70] text-[#1f8a70] focus:outline-none"
-                    : "border-transparent text-[#696255] hover:text-[#161613] focus:outline-none"
+                    ? "border-[#4f46e5] text-[#4f46e5] focus:outline-none"
+                    : "border-transparent text-[#9ca3af] hover:text-[#111827] focus:outline-none"
                 }`}
               >
                 Instagram Downloader Guide
@@ -661,78 +672,78 @@ export default function Home() {
             {activeTab === "tiktok" ? (
               <div className="space-y-6 animate-fadeIn">
                 <div className="grid gap-6 sm:grid-cols-3">
-                  <div className="p-4 rounded-lg bg-[#f6f4ef] border border-[#e5ddce] text-center space-y-2">
-                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#161613] text-white font-bold text-sm">
+                  <div className="p-5 rounded-2xl bg-[#f4f6fb] border border-transparent text-center space-y-3">
+                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#161613] text-white font-bold text-[15px]">
                       1
                     </div>
-                    <h4 className="font-semibold text-[#161613]">Find a TikTok Video</h4>
-                    <p className="text-xs text-[#5d574c] leading-relaxed">
+                    <h4 className="font-bold text-[#161613]">Find a TikTok Video</h4>
+                    <p className="text-[13px] font-medium text-[#6b7280] leading-relaxed">
                       Open the TikTok app on your mobile device or desktop. Scroll to locate the video 
                       you wish to save and play it to verify the content.
                     </p>
                   </div>
-                  <div className="p-4 rounded-lg bg-[#f6f4ef] border border-[#e5ddce] text-center space-y-2">
-                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#161613] text-white font-bold text-sm">
+                  <div className="p-5 rounded-2xl bg-[#f4f6fb] border border-transparent text-center space-y-3">
+                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#161613] text-white font-bold text-[15px]">
                       2
                     </div>
-                    <h4 className="font-semibold text-[#161613]">Copy Video URL</h4>
-                    <p className="text-xs text-[#5d574c] leading-relaxed">
+                    <h4 className="font-bold text-[#161613]">Copy Video URL</h4>
+                    <p className="text-[13px] font-medium text-[#6b7280] leading-relaxed">
                       Tap the &apos;Share&apos; arrow button on the right side of the screen, then choose 
                       &apos;Copy link&apos; from the list of options to save it to your clipboard.
                     </p>
                   </div>
-                  <div className="p-4 rounded-lg bg-[#f6f4ef] border border-[#e5ddce] text-center space-y-2">
-                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#1f8a70] text-white font-bold text-sm">
+                  <div className="p-5 rounded-2xl bg-[#f4f6fb] border border-transparent text-center space-y-3">
+                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#4f46e5] shadow-md shadow-[#4f46e5]/20 text-white font-bold text-[15px]">
                       3
                     </div>
-                    <h4 className="font-semibold text-[#161613]">Paste & Save MP4</h4>
-                    <p className="text-xs text-[#5d574c] leading-relaxed">
+                    <h4 className="font-bold text-[#161613]">Paste & Save MP4</h4>
+                    <p className="text-[13px] font-medium text-[#6b7280] leading-relaxed">
                       Paste the link into the URL input at the top of this page. Click &apos;Analyze video&apos;, 
                       choose your format/quality, and click &apos;Download video&apos;.
                     </p>
                   </div>
                 </div>
-                <div className="text-center p-3 bg-[#eefaf5] text-xs text-[#17624f] rounded-lg border border-[#b9dccd] font-medium flex items-center justify-center gap-2">
-                  <Sparkles size={14} />
+                <div className="text-center p-3.5 bg-[#eef1fc] text-[13px] text-[#4f46e5] rounded-xl font-bold flex items-center justify-center gap-2">
+                  <Sparkles size={16} />
                   Perfect solution for post-editing! TikTok download removes watermarks and logos completely.
                 </div>
               </div>
             ) : (
               <div className="space-y-6 animate-fadeIn">
                 <div className="grid gap-6 sm:grid-cols-3">
-                  <div className="p-4 rounded-lg bg-[#f6f4ef] border border-[#e5ddce] text-center space-y-2">
-                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#161613] text-white font-bold text-sm">
+                  <div className="p-5 rounded-2xl bg-[#f4f6fb] border border-transparent text-center space-y-3">
+                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#161613] text-white font-bold text-[15px]">
                       1
                     </div>
-                    <h4 className="font-semibold text-[#161613]">Locate Video or Reel</h4>
-                    <p className="text-xs text-[#5d574c] leading-relaxed">
+                    <h4 className="font-bold text-[#161613]">Locate Video or Reel</h4>
+                    <p className="text-[13px] font-medium text-[#6b7280] leading-relaxed">
                       Open Instagram on your device or browser and browse to the specific Reel, 
                       story, or video that you want to download.
                     </p>
                   </div>
-                  <div className="p-4 rounded-lg bg-[#f6f4ef] border border-[#e5ddce] text-center space-y-2">
-                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#161613] text-white font-bold text-sm">
+                  <div className="p-5 rounded-2xl bg-[#f4f6fb] border border-transparent text-center space-y-3">
+                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#161613] text-white font-bold text-[15px]">
                       2
                     </div>
-                    <h4 className="font-semibold text-[#161613]">Copy Share Link</h4>
-                    <p className="text-xs text-[#5d574c] leading-relaxed">
+                    <h4 className="font-bold text-[#161613]">Copy Share Link</h4>
+                    <p className="text-[13px] font-medium text-[#6b7280] leading-relaxed">
                       Click the three-dot menu in the upper corner or tap the share arrow, 
                       then click &apos;Copy link&apos; to copy the video URL to your system clipboard.
                     </p>
                   </div>
-                  <div className="p-4 rounded-lg bg-[#f6f4ef] border border-[#e5ddce] text-center space-y-2">
-                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#1f8a70] text-white font-bold text-sm">
+                  <div className="p-5 rounded-2xl bg-[#f4f6fb] border border-transparent text-center space-y-3">
+                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#4f46e5] shadow-md shadow-[#4f46e5]/20 text-white font-bold text-[15px]">
                       3
                     </div>
-                    <h4 className="font-semibold text-[#161613]">Download Instantly</h4>
-                    <p className="text-xs text-[#5d574c] leading-relaxed">
+                    <h4 className="font-bold text-[#161613]">Download Instantly</h4>
+                    <p className="text-[13px] font-medium text-[#6b7280] leading-relaxed">
                       Go to the input analyzer above, paste your Instagram link, hit analyze, 
                       select &apos;Best available&apos;, and download the MP4 file in HD quality.
                     </p>
                   </div>
                 </div>
-                <div className="text-center p-3 bg-[#eefaf5] text-xs text-[#17624f] rounded-lg border border-[#b9dccd] font-medium flex items-center justify-center gap-2">
-                  <Sparkles size={14} />
+                <div className="text-center p-3.5 bg-[#eef1fc] text-[13px] text-[#4f46e5] rounded-xl font-bold flex items-center justify-center gap-2">
+                  <Sparkles size={16} />
                   Download Reels, IGTV videos, stories, and photo slides in seconds.
                 </div>
               </div>
@@ -741,14 +752,14 @@ export default function Home() {
 
           {/* Section 3: Platform specific Guidelines (Mobile vs Desktop) */}
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="border border-[#d8cfbd] bg-white rounded-xl p-6 shadow-sm space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1f8a70] text-white">
-                  <Smartphone size={20} />
+            <div className="border border-[#e5e7eb] bg-white rounded-2xl p-8 shadow-sm space-y-5">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#4f46e5] text-white shadow-md shadow-[#4f46e5]/20">
+                  <Smartphone size={22} />
                 </div>
-                <h3 className="text-lg font-bold text-[#161613]">Download on Mobile Devices</h3>
+                <h3 className="text-[19px] font-bold text-[#161613]">Download on Mobile Devices</h3>
               </div>
-              <p className="text-sm text-[#5d574c] leading-relaxed">
+              <p className="text-[14px] text-[#4b5563] font-medium leading-relaxed">
                 To download videos on Android or iPhone, open the target app (TikTok or Instagram) 
                 and select the video. Tap &apos;Share&apos; and copy the link. Open your phone&apos;s browser, 
                 navigate to ReelSave, paste the link into the URL field, and tap download. 
@@ -757,14 +768,14 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="border border-[#d8cfbd] bg-white rounded-xl p-6 shadow-sm space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1f8a70] text-white">
-                  <Laptop size={20} />
+            <div className="border border-[#e5e7eb] bg-white rounded-2xl p-8 shadow-sm space-y-5">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#4f46e5] text-white shadow-md shadow-[#4f46e5]/20">
+                  <Laptop size={22} />
                 </div>
-                <h3 className="text-lg font-bold text-[#161613]">Download on PC & Desktop</h3>
+                <h3 className="text-[19px] font-bold text-[#161613]">Download on PC & Desktop</h3>
               </div>
-              <p className="text-sm text-[#5d574c] leading-relaxed">
+              <p className="text-[14px] text-[#4b5563] font-medium leading-relaxed">
                 ReelSave works seamlessly on desktop computers running Windows, macOS, and Linux. 
                 Simply copy the target video&apos;s address from the address bar or the sharing menu. 
                 Go back to ReelSave website, paste the URL in the search input at the top of the 
@@ -775,12 +786,12 @@ export default function Home() {
           </div>
 
           {/* Section 4: Premium FAQ Accordion */}
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <h2 id="faq" className="text-2xl font-bold text-[#161613] sm:text-3xl">
+          <div className="space-y-8">
+            <div className="text-center space-y-3">
+              <h2 id="faq" className="text-3xl font-black text-[#161613] sm:text-4xl">
                 Frequently Asked Questions (FAQ)
               </h2>
-              <p className="text-sm text-[#696255]">
+              <p className="text-[15px] font-medium text-[#6b7280]">
                 Find detailed answers to common questions about using our video downloader and watermark remover tool.
               </p>
             </div>
@@ -844,19 +855,19 @@ export default function Home() {
                 return (
                   <div
                     key={index}
-                    className="rounded-lg border border-[#d8cfbd] bg-white transition-all shadow-sm hover:border-[#1f8a70]/50"
+                    className="rounded-xl border border-[#e5e7eb] bg-white transition-all shadow-sm hover:border-[#4f46e5]/30 hover:shadow-md"
                   >
                     <button
                       type="button"
                       onClick={() => setOpenFaq(isOpen ? null : index)}
-                      className="flex w-full items-center justify-between gap-4 p-5 text-left font-semibold text-[#161613] hover:text-[#1f8a70] focus:outline-none"
+                      className="flex w-full items-center justify-between gap-4 p-5 text-left font-bold text-[#161613] hover:text-[#4f46e5] focus:outline-none"
                       aria-expanded={isOpen}
                     >
                       <span>{faq.q}</span>
                       <ChevronDown
                         size={18}
-                        className={`text-[#776f60] transition-transform duration-300 ${
-                          isOpen ? "rotate-180 text-[#1f8a70]" : ""
+                        className={`text-[#6b7280] transition-transform duration-300 ${
+                          isOpen ? "rotate-180 text-[#4f46e5]" : ""
                         }`}
                       />
                     </button>
@@ -866,7 +877,7 @@ export default function Home() {
                       }`}
                     >
                       <div className="overflow-hidden">
-                        <p className="border-t border-[#f1eadb] p-5 text-sm leading-6 text-[#5d574c] bg-[#fffaf0]">
+                        <p className="border-t border-[#e5e7eb] p-5 text-[14px] font-medium leading-relaxed text-[#4b5563] bg-[#f9fafb] rounded-b-xl">
                           {faq.a}
                         </p>
                       </div>
