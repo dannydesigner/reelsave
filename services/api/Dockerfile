@@ -2,6 +2,8 @@
 FROM python:3.11-slim
 
 # Install system dependencies including ffmpeg
+# NOTE: yt-dlp >=2026.6.9 requires Node.js v22+ or Deno for YouTube JS challenges.
+# If upgrading yt-dlp past the pinned version, install one of these runtimes here.
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*

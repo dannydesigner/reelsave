@@ -11,7 +11,7 @@ from starlette.background import BackgroundTask
 
 from .bot_protection import validate_content_type, validate_referer, validate_user_agent
 from .config import settings
-from .downloader import download_video, ffmpeg_available, get_metadata, yt_dlp_available
+from .downloader import download_video, ffmpeg_available, get_metadata, log_ytdlp_environment, yt_dlp_available
 from .logging_config import log_cleanup, log_request
 from .models import DownloadRequest, HealthResponse, MetadataRequest, MetadataResponse
 from .rate_limiter import get_client_ip, rate_limiter
@@ -268,3 +268,5 @@ async def startup_event():
     settings.log_directory.mkdir(parents=True, exist_ok=True)
     # Create temp directory if it doesn't exist
     settings.temp_root.mkdir(parents=True, exist_ok=True)
+    # Log yt-dlp environment for diagnostics (JS runtime, version, etc.)
+    log_ytdlp_environment()

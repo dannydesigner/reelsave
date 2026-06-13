@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import glob
+import logging
 import math
 import os
 import shutil
+import subprocess
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +16,8 @@ from yt_dlp import DownloadError, YoutubeDL
 
 from .config import settings
 from .models import FormatInfo, MetadataResponse, Quality
+
+logger = logging.getLogger("social_downloader.ytdlp")
 
 
 def ffmpeg_available() -> bool:
@@ -25,6 +30,73 @@ def yt_dlp_available() -> bool:
     except Exception:
         return False
     return True
+
+
+def _get_runtime_version(cmd: str) -> str | None:
+    """Get the version string of a JS runtime, or None if unavailable."""
+    try:
+        result = subprocess.run(
+            [cmd, "--version"],
+            capture_output=True, text=True, timeout=5,
+        )
+        return result.stdout.strip().splitlines()[0] if result.returncode == 0 else None
+    except (FileNotFoundError, subprocess.TimeoutExpired, IndexError):
+        return None
+
+
+def log_ytdlp_environment() -> dict[str, Any]:
+    """Log yt-dlp version and JS runtime availability for diagnostics."""
+    import yt_dlp as _yt_dlp
+
+    ytdlp_version = getattr(_yt_dlp.version, "__version__", "unknown")
+    node_version = _get_runtime_version("node")
+    deno_version = _get_runtime_version("deno")
+    has_ffmpeg = ffmpeg_available()
+
+    env_info: dict[str, Any] = {
+        "yt_dlp_version": ytdlp_version,
+        "node_version": node_version or "not found",
+        "deno_version": deno_version or "not found",
+        "ffmpeg_available": has_ffmpeg,
+    }
+
+    # Warn about known compatibility issues
+    warnings: list[str] = []
+    if node_version and not deno_version:
+        # Check if Node version is too old for newer yt-dlp
+        try:
+            major = int(node_version.lstrip("v").split(".")[0])
+            if major < 22:
+                warnings.append(
+                    f"Node.js {node_version} detected but yt-dlp >=2026.6.9 requires Node v22+. "
+                    f"Current yt-dlp pin keeps compatibility, but upgrading Node or installing Deno "
+                    f"is recommended before unpinning yt-dlp."
+                )
+        except (ValueError, IndexError):
+            pass
+
+    if not node_version and not deno_version:
+        warnings.append(
+            "No JS runtime (Node.js or Deno) found. YouTube downloads will fail "
+            "because yt-dlp cannot solve JS challenges without a runtime."
+        )
+
+    if not has_ffmpeg:
+        warnings.append("ffmpeg not found. Merged best-quality downloads may be unavailable.")
+
+    env_info["warnings"] = warnings
+
+    logger.info(
+        "yt-dlp environment: version=%s node=%s deno=%s ffmpeg=%s",
+        ytdlp_version,
+        node_version or "unavailable",
+        deno_version or "unavailable",
+        has_ffmpeg,
+    )
+    for w in warnings:
+        logger.warning("yt-dlp env warning: %s", w)
+
+    return env_info
 
 
 def _base_options() -> dict[str, Any]:
@@ -156,11 +228,25 @@ def _platform(info: dict[str, Any]) -> str:
     )
 
 
-def _friendly_error(error: Exception) -> HTTPException:
+def _friendly_error(error: Exception, *, url: str = "unknown") -> HTTPException:
     message = str(error)
     lower = message.lower()
 
-    if "private" in lower or "login" in lower or "sign in" in lower or "cookies" in lower:
+    # Log the raw yt-dlp error so the exact cause is always in server logs
+    logger.error(
+        "yt-dlp extraction failed: url=%s error_type=%s message=%s",
+        url, type(error).__name__, message,
+    )
+
+    # Detect JS-challenge / format-related failures specifically
+    if "no video formats" in lower or "js challenge" in lower or "n-challenge" in lower:
+        detail = (
+            "The video could not be fetched — YouTube's anti-bot challenge could not be solved. "
+            "This usually means the server's JS runtime (Node.js/Deno) is missing or outdated. "
+            "Please contact the site administrator."
+        )
+        code = status.HTTP_502_BAD_GATEWAY
+    elif "private" in lower or "login" in lower or "sign in" in lower or "cookies" in lower:
         detail = "This link appears to require login, cookies, or private access. Public links only are supported."
         code = status.HTTP_403_FORBIDDEN
     elif "unsupported url" in lower or "no suitable extractor" in lower:
@@ -187,17 +273,29 @@ def get_metadata(url: str) -> MetadataResponse:
     if not ffmpeg_available():
         warnings.append("ffmpeg was not found, so some best-quality merged downloads may be unavailable.")
 
+    logger.info("Fetching metadata: url=%s", url)
+    start = time.monotonic()
+
     try:
         with YoutubeDL(options) as ydl:
             info = ydl.extract_info(url, download=False)
     except DownloadError as error:
-        raise _friendly_error(error) from error
+        raise _friendly_error(error, url=url) from error
+
+    elapsed_ms = (time.monotonic() - start) * 1000
 
     if not isinstance(info, dict):
+        logger.error("yt-dlp returned non-dict info for url=%s", url)
         raise HTTPException(status_code=502, detail="The downloader returned an unexpected response.")
 
     if info.get("_type") in {"playlist", "multi_video"}:
         raise HTTPException(status_code=422, detail="Playlists are not supported in this version.")
+
+    platform = _platform(info)
+    logger.info(
+        "Metadata fetched: url=%s platform=%s duration_ms=%.1f formats=%d",
+        url, platform, elapsed_ms, len(info.get("formats") or []),
+    )
 
     # Check if video duration suggests a file too large
     raw_duration = _non_negative_finite_float(info.get("duration"))
@@ -209,7 +307,7 @@ def get_metadata(url: str) -> MetadataResponse:
     return MetadataResponse(
         title=title,
         webpage_url=info.get("webpage_url") or url,
-        platform=_platform(info),
+        platform=platform,
         thumbnail=info.get("thumbnail"),
         duration=duration,
         formats=_extract_formats(info),
@@ -255,12 +353,15 @@ def download_video(url: str, format_id: str | None, quality: Quality) -> tuple[P
     # Note: Signal-based timeout removed due to thread-safety issues with uvicorn workers.
     # Relying on yt-dlp's built-in socket_timeout and max_filesize options instead.
 
+    logger.info("Starting download: url=%s format=%s quality=%s", url, format_id, quality)
+    start = time.monotonic()
+
     try:
         with YoutubeDL(options) as ydl:
             info = ydl.extract_info(url, download=True)
     except DownloadError as error:
         shutil.rmtree(work_dir, ignore_errors=True)
-        raise _friendly_error(error) from error
+        raise _friendly_error(error, url=url) from error
     except Exception:
         shutil.rmtree(work_dir, ignore_errors=True)
         raise
@@ -275,6 +376,12 @@ def download_video(url: str, format_id: str | None, quality: Quality) -> tuple[P
     # Validate file size
     _validate_downloaded_file(file_path)
     
+    elapsed_ms = (time.monotonic() - start) * 1000
+    logger.info(
+        "Download complete: url=%s file=%s size_mb=%.1f duration_ms=%.1f",
+        url, file_path.name, file_path.stat().st_size / (1024 * 1024), elapsed_ms,
+    )
+
     filename = os.path.basename(file_path)
 
     requested = info.get("requested_downloads") if isinstance(info, dict) else None
